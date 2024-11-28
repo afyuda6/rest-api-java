@@ -1,34 +1,43 @@
+package database;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Database {
+public class Sqlite {
     private static final String DB_URL = "jdbc:sqlite:rest_api_java.db";
 
     public static void initializeDatabase() {
         try {
-            // Explicitly load the SQLite JDBC driver
             Class.forName("org.sqlite.JDBC");
 
             try (Connection connection = DriverManager.getConnection(DB_URL)) {
                 if (connection != null) {
-                    String createTableSQL = """
+                    String dropUsersTableSQL = """
+                            DROP TABLE IF EXISTS users;
+                            """;
+                    try (Statement statement = connection.createStatement()) {
+                        statement.execute(dropUsersTableSQL);
+                    }
+                }
+            }
+
+            try (Connection connection = DriverManager.getConnection(DB_URL)) {
+                if (connection != null) {
+                    String createUsersTableSQL = """
                             CREATE TABLE IF NOT EXISTS users (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                id INTEGER PRIMARY KEY,
                                 name TEXT NOT NULL
                             );
                             """;
                     try (Statement statement = connection.createStatement()) {
-                        statement.execute(createTableSQL);
-                        System.out.println("Database initialized successfully.");
+                        statement.execute(createUsersTableSQL);
                     }
                 }
             }
-        } catch (ClassNotFoundException e) {
-            System.err.println("SQLite JDBC Driver not found: " + e.getMessage());
-        } catch (SQLException e) {
-            System.err.println("Error initializing the database: " + e.getMessage());
+        } catch (SQLException | ClassNotFoundException e) {
+            System.err.println("SQL error (open database): " + e.getMessage());
         }
     }
 
