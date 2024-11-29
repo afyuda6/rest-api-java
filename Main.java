@@ -28,7 +28,7 @@ public class Main {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String requestPath = exchange.getRequestURI().getPath();
-            if (!"/users".equals(requestPath)) {
+            if (!"/users".equals(requestPath) && requestPath.charAt(6) != '/') {
                 String response = "{\"status\": \"Not Found\", \"code\": 404}";
                 exchange.getResponseHeaders().add("Content-Type", "application/json");
                 exchange.sendResponseHeaders(404, response.getBytes().length);
