@@ -28,15 +28,15 @@ public class Main {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String requestPath = exchange.getRequestURI().getPath();
-            if (!"/users".equals(requestPath) && requestPath.charAt(6) != '/') {
+            if ("/users".equals(requestPath) || "/users/".equals(requestPath)) {
+                userHandler.handle(exchange);
+            } else {
                 String response = "{\"status\": \"Not Found\", \"code\": 404}";
                 exchange.getResponseHeaders().add("Content-Type", "application/json");
                 exchange.sendResponseHeaders(404, response.getBytes().length);
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(response.getBytes());
                 }
-            } else {
-                userHandler.handle(exchange);
             }
         }
     }
