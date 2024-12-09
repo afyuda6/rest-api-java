@@ -75,7 +75,7 @@ public class User implements HttpHandler {
 
         String name = parameters.get("name");
 
-        if (name.trim().isEmpty()) {
+        if (name == null || name.trim().isEmpty()) {
             String errorResponse = "{\"status\": \"Bad Request\", \"code\": 400, \"errors\": \"Missing 'name' parameter\"}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, errorResponse.getBytes().length);
@@ -108,7 +108,7 @@ public class User implements HttpHandler {
         String name = parameters.get("name");
         String id = parameters.get("id");
 
-        if (name.trim().isEmpty() || id.trim().isEmpty()) {
+        if (name == null || name.trim().isEmpty() || id == null || id.trim().isEmpty()) {
             String errorResponse = "{\"status\": \"Bad Request\", \"code\": 400, \"errors\": \"Missing 'id' or 'name' parameter\"}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, errorResponse.getBytes().length);
@@ -140,7 +140,7 @@ public class User implements HttpHandler {
         Map<String, String> parameters = parseUrlEncoded(requestBody);
 
         String id = parameters.get("id");
-        if (id.trim().isEmpty()) {
+        if (id == null || id.trim().isEmpty()) {
             String errorResponse = "{\"status\": \"Bad Request\", \"code\": 400, \"errors\": \"Missing 'id' parameter\"}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, errorResponse.getBytes().length);
