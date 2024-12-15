@@ -1,9 +1,7 @@
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.sql.SQLException;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import database.Sqlite;
 import handlers.User;
@@ -12,32 +10,12 @@ public class Main {
     public static void main(String[] args) {
         try {
             Sqlite.initializeDatabase();
-
             HttpServer server = HttpServer.create(new InetSocketAddress(6002), 0);
-            server.createContext("/", new ErrorHandler());
+            server.createContext("/", new User());
             server.setExecutor(null);
             server.start();
-        } catch (IOException e) {
+        } catch (SQLException | ClassNotFoundException | IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    static class ErrorHandler implements HttpHandler {
-        private final User userHandler = new User();
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String requestPath = exchange.getRequestURI().getPath();
-            if ("/users".equals(requestPath) || "/users/".equals(requestPath)) {
-                userHandler.handle(exchange);
-            } else {
-                String response = "{\"status\": \"Not Found\", \"code\": 404}";
-                exchange.getResponseHeaders().add("Content-Type", "application/json");
-                exchange.sendResponseHeaders(404, response.getBytes().length);
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
-            }
         }
     }
 }
