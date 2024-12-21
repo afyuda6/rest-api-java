@@ -1,9 +1,9 @@
-FROM ubuntu:20.04
+FROM openjdk:17-jdk-slim
 
 ENV LANG=C.UTF-8
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-17-jdk sqlite3 curl && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y sqlite3 curl && \
     apt-get clean
 
 WORKDIR /rest-api-java
