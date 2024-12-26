@@ -50,6 +50,7 @@ public class User implements HttpHandler {
             users.add(new UserModel(resultSet.getInt("id"), resultSet.getString("name")));
         }
         String usersString = users.toString();
+        addCORSHeaders(exchange);
         String response = "{\"status\":\"OK\", \"code\": 200, \"data\":" + usersString + "}";
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -63,6 +64,7 @@ public class User implements HttpHandler {
         Map<String, String> parameters = parseUrlEncoded(requestBody);
         String name = parameters.get("name");
         if (name == null || name.trim().isEmpty()) {
+            addCORSHeaders(exchange);
             String errorResponse = "{\"status\": \"Bad Request\", \"code\": 400, \"errors\": \"Missing 'name' parameter\"}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, errorResponse.getBytes().length);
@@ -75,6 +77,7 @@ public class User implements HttpHandler {
         PreparedStatement statement = connection.prepareStatement("INSERT INTO users (name) VALUES (?)");
         statement.setString(1, name);
         statement.executeUpdate();
+        addCORSHeaders(exchange);
         String response = "{\"status\":\"Created\", \"code\": 201}";
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(201, response.getBytes().length);
@@ -89,6 +92,7 @@ public class User implements HttpHandler {
         String name = parameters.get("name");
         String id = parameters.get("id");
         if (name == null || name.trim().isEmpty() || id == null || id.trim().isEmpty()) {
+            addCORSHeaders(exchange);
             String errorResponse = "{\"status\": \"Bad Request\", \"code\": 400, \"errors\": \"Missing 'id' or 'name' parameter\"}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, errorResponse.getBytes().length);
@@ -102,6 +106,7 @@ public class User implements HttpHandler {
         statement.setString(1, name);
         statement.setInt(2, Integer.parseInt(id));
         statement.executeUpdate();
+        addCORSHeaders(exchange);
         String response = "{\"status\":\"OK\", \"code\": 200}";
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -115,6 +120,7 @@ public class User implements HttpHandler {
         Map<String, String> parameters = parseUrlEncoded(requestBody);
         String id = parameters.get("id");
         if (id == null || id.trim().isEmpty()) {
+            addCORSHeaders(exchange);
             String errorResponse = "{\"status\": \"Bad Request\", \"code\": 400, \"errors\": \"Missing 'id' parameter\"}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(400, errorResponse.getBytes().length);
@@ -127,6 +133,7 @@ public class User implements HttpHandler {
         PreparedStatement statement = connection.prepareStatement("DELETE FROM users WHERE id = ?");
         statement.setInt(1, Integer.parseInt(id));
         statement.executeUpdate();
+        addCORSHeaders(exchange);
         String response = "{\"status\":\"OK\", \"code\": 200}";
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -150,6 +157,7 @@ public class User implements HttpHandler {
                 handleDeleteUser(exchange);
                 break;
             default:
+                addCORSHeaders(exchange);
                 String response = "{\"status\": \"Method Not Allowed\", \"code\": 405}";
                 exchange.getResponseHeaders().add("Content-Type", "application/json");
                 exchange.sendResponseHeaders(405, response.getBytes().length);
@@ -159,8 +167,24 @@ public class User implements HttpHandler {
         }
     }
 
+    private void addCORSHeaders(HttpExchange exchange) {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+    }
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String requestMethod = exchange.getRequestMethod();
+        if ("OPTIONS".equals(requestMethod)) {
+            addCORSHeaders(exchange);
+            String response = "";
+            exchange.sendResponseHeaders(200, response.getBytes().length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+            return;
+        }
         String requestPath = exchange.getRequestURI().getPath();
         if ("/users".equals(requestPath) || "/users/".equals(requestPath)) {
             try {
@@ -169,6 +193,7 @@ public class User implements HttpHandler {
                 throw new RuntimeException(e);
             }
         } else {
+            addCORSHeaders(exchange);
             String response = "{\"status\": \"Not Found\", \"code\": 404}";
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(404, response.getBytes().length);
