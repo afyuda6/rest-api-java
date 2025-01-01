@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             String portEnv = System.getenv("PORT");
-            int port = (portEnv != null) ? Integer.parseInt(portEnv) : 6002;
+            int port = (portEnv != null) ? Integer.parseInt(portEnv) : 6005;
             Sqlite.initializeDatabase();
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
             server.createContext("/", new User());
