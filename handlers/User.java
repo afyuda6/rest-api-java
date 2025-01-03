@@ -17,10 +17,12 @@ public class User implements HttpHandler {
     public class UserModel {
         private final int id;
         private final String name;
+
         public UserModel(int id, String name) {
             this.id = id;
             this.name = name;
         }
+
         @Override
         public String toString() {
             return String.format("{\"id\":%d,\"name\":\"%s\"}", id, name);
