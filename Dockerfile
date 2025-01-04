@@ -1,10 +1,9 @@
 FROM openjdk:17-jdk-slim
 
-ENV LANG=C.UTF-8
-
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y sqlite3 curl && \
-    apt-get clean
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    sqlite3 curl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /rest-api-java
 
