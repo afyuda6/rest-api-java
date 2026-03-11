@@ -1,0 +1,5 @@
+out/
+.idea
+rest_api_java.db
+rest-api-java.iml
+*.sh
